@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model HealthMetric {
+  id               String   @id @default(cuid())
+  date             DateTime @unique
+  sleepHours       Float?
+  recoveryPercent  Float?
+  strain           Float?
+  hrv              Float?
+  restingHeartRate Int?
+  steps            Int?
+  calories         Int?
+  createdAt        DateTime @default(now())
+}
+
+model MentalHealth {
+  id        String   @id @default(cuid())
+  date      DateTime @unique
+  mood      Int      // 1-10 scale
+  anxiety   Int      // 1-10 scale
+  energy    Int      // 1-10 scale
+  stress    Int      // 1-10 scale
+  focus     Int      // 1-10 scale
+  journal   String?
+  gratitude String?
+  triggers  String?
+  createdAt DateTime @default(now())
+}
+
+model Insight {
+  id         String   @id @default(cuid())
+  date       DateTime
+  text       String
+  type       String   // 'correlation', 'trend', 'recommendation'
+  confidence Float    // 0-1 confidence score
+  createdAt  DateTime @default(now())
+}
