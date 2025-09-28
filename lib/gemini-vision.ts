@@ -11,6 +11,7 @@ export interface HealthMetrics {
   restingHeartRate?: number;
   steps?: number;
   calories?: number;
+  date?: string; // ISO date string from the health data
 }
 
 export async function extractHealthMetrics(imageBuffer: Buffer, mimeType: string): Promise<HealthMetrics> {
@@ -52,8 +53,16 @@ Return JSON in this exact format:
   "hrv": number or null,
   "restingHeartRate": number or null,
   "steps": number or null,
-  "calories": number or null
-}`,
+  "calories": number or null,
+  "date": "YYYY-MM-DD" or null
+}
+
+IMPORTANT: Also look for the DATE this health data is from. Look for:
+- Date stamps (e.g., "Sep 28", "September 28, 2025", "9/28/25")
+- Day indicators (e.g., "Today", "Yesterday", "Monday")
+- Any date text in the health interface
+
+Extract the date as YYYY-MM-DD format. If you can't find a clear date, return null.`,
       ],
     });
 

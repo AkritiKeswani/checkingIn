@@ -19,13 +19,35 @@ export async function POST(request: NextRequest) {
     // Extract health metrics using Gemini Vision
     const metrics = await extractHealthMetrics(imageBuffer, file.type || 'image/jpeg');
     
-    // Get today's date
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Use the date from the health data, or fall back to today
+    let dataDate = new Date();
+    if (metrics.date) {
+      try {
+        dataDate = new Date(metrics.date);
+        // Validate it's a reasonable date (not in future, not too old)
+        const now = new Date();
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(now.getFullYear() - 1);
+        
+        if (dataDate > now) {
+          console.log(`Date ${metrics.date} is in future, using today instead`);
+          dataDate = new Date();
+        } else if (dataDate < oneYearAgo) {
+          console.log(`Date ${metrics.date} is too old, using today instead`);
+          dataDate = new Date();
+        }
+      } catch (error) {
+        console.log(`Invalid date format: ${metrics.date}, using today instead`);
+        dataDate = new Date();
+      }
+    }
+    dataDate.setHours(0, 0, 0, 0);
     
-    // Store in database (upsert for today's date)
+    console.log(`Storing health data for date: ${dataDate.toISOString().split('T')[0]}`);
+    
+    // Store in database (upsert for the actual data date)
     const healthMetric = await prisma.healthMetric.upsert({
-      where: { date: today },
+      where: { date: dataDate },
       update: {
         sleepHours: metrics.sleepHours,
         recoveryPercent: metrics.recoveryPercent,
@@ -36,7 +58,7 @@ export async function POST(request: NextRequest) {
         calories: metrics.calories,
       },
       create: {
-        date: today,
+        date: dataDate,
         sleepHours: metrics.sleepHours,
         recoveryPercent: metrics.recoveryPercent,
         strain: metrics.strain,
