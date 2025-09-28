@@ -14,22 +14,28 @@ export default function Navigation() {
         </div>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-1">
-            <Link href="/snap">
+            <Link href="/upload">
               <Button variant="ghost" size="sm" className="flex items-center gap-2">
                 <Camera className="h-4 w-4" />
-                Snap
+                Upload
               </Button>
             </Link>
-            <Link href="/checkin">
-              <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                <Heart className="h-4 w-4" />
-                Check-in
-              </Button>
-            </Link>
-            <Link href="/insights">
+            <Link href="/analysis">
               <Button variant="ghost" size="sm" className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
-                Insights
+                Analysis
+              </Button>
+            </Link>
+            <Link href="/guidance">
+              <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                <Heart className="h-4 w-4" />
+                Guidance
+              </Button>
+            </Link>
+            <Link href="/journal">
+              <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                <Heart className="h-4 w-4" />
+                Journal
               </Button>
             </Link>
           </nav>

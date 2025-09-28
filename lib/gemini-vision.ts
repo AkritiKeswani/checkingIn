@@ -27,7 +27,7 @@ export async function extractHealthMetrics(imageBuffer: Buffer, mimeType: string
 }`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-pro",
+      model: "gemini-pro",
       contents: [
       {
         inlineData: {
@@ -56,8 +56,13 @@ Only include values that are clearly visible and readable in the image. Set to n
     console.log(`Raw JSON response: ${rawJson}`);
 
     if (rawJson) {
-      const metrics: HealthMetrics = JSON.parse(rawJson);
-      return metrics;
+      try {
+        const metrics: HealthMetrics = JSON.parse(rawJson);
+        return metrics;
+      } catch (parseError) {
+        console.error("Failed to parse JSON response:", rawJson);
+        throw new Error(`Invalid JSON response from Gemini: ${parseError}`);
+      }
     } else {
       throw new Error("Empty response from Gemini");
     }
