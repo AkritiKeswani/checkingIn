@@ -17,7 +17,7 @@ export default function HomePage() {
             <Link href="/upload" className="bg-black text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-800 transition-colors">
               Upload Health Screenshot
             </Link>
-            <Link href="/analysis" className="border border-black text-black px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-50 transition-colors">
+            <Link href="/journal" className="border border-black text-black px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-50 transition-colors">
               Mental Health Check-in
             </Link>
           </div>
