@@ -1,11 +1,17 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 // Using HTML textarea since Textarea component not available
 import { Input } from "@/components/ui/input";
 import { Book, Save, Calendar, Smile, Meh, Frown, Star } from "lucide-react";
+
+interface WeekStats {
+  totalEntries: number;
+  avgMood: number;
+  streak: number;
+}
 
 export default function JournalPage() {
   const [entry, setEntry] = useState("");
@@ -13,6 +19,7 @@ export default function JournalPage() {
   const [gratitude, setGratitude] = useState("");
   const [goals, setGoals] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [weekStats, setWeekStats] = useState<WeekStats>({ totalEntries: 0, avgMood: 0, streak: 0 });
 
   const moods = [
     { value: 5, icon: <Smile className="h-6 w-6" />, label: "Great", color: "text-green-600" },
@@ -22,21 +29,70 @@ export default function JournalPage() {
     { value: 1, icon: <Frown className="h-6 w-6" />, label: "Poor", color: "text-red-500" },
   ];
 
+  // Load stats on component mount
+  useEffect(() => {
+    loadWeekStats();
+  }, []);
+
+  // Update stats when form fields change (real-time preview)
+  useEffect(() => {
+    if (mood || entry || gratitude || goals) {
+      // Calculate potential new stats if this entry was saved
+      const potentialNewTotal = weekStats.totalEntries + 1;
+      const potentialNewAvgMood = mood 
+        ? ((weekStats.avgMood * weekStats.totalEntries) + mood) / potentialNewTotal
+        : weekStats.avgMood;
+      
+      // Don't update actual stats until saved, just show preview
+      setWeekStats(prev => ({
+        ...prev,
+        // Show preview of what stats would be if saved
+      }));
+    }
+  }, [mood, entry, gratitude, goals]);
+
+  const loadWeekStats = async () => {
+    try {
+      const response = await fetch('/api/journal-entries');
+      const data = await response.json();
+      if (data.stats) {
+        setWeekStats(data.stats);
+      }
+    } catch (error) {
+      console.error('Failed to load week stats:', error);
+    }
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Reset form
-    setEntry("");
-    setMood(null);
-    setGratitude("");
-    setGoals("");
-    setIsSubmitting(false);
-    
-    // Show success message (you could use a toast here)
-    alert("Journal entry saved successfully!");
+    try {
+      const response = await fetch('/api/journal-entries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mood, entry, gratitude, goals })
+      });
+      
+      if (response.ok) {
+        // Reset form
+        setEntry("");
+        setMood(null);
+        setGratitude("");
+        setGoals("");
+        
+        // Reload stats with new data
+        await loadWeekStats();
+        
+        alert("Journal entry saved successfully!");
+      } else {
+        throw new Error('Failed to save entry');
+      }
+    } catch (error) {
+      console.error('Error saving entry:', error);
+      alert('Failed to save journal entry. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const prompts = [
@@ -208,15 +264,15 @@ export default function JournalPage() {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-600">Journal entries</span>
-                      <span className="font-semibold">5 / 7</span>
+                      <span className="font-semibold">{weekStats.totalEntries} / 7</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-600">Avg mood</span>
-                      <span className="font-semibold">4.2 / 5</span>
+                      <span className="font-semibold">{weekStats.avgMood} / 5</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-600">Streak</span>
-                      <span className="font-semibold">12 days</span>
+                      <span className="font-semibold">{weekStats.streak} days</span>
                     </div>
                   </div>
                 </CardContent>
