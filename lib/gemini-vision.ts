@@ -26,16 +26,16 @@ export async function extractHealthMetrics(imageBuffer: Buffer, mimeType: string
   "calories": number or null
 }`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
-      contents: [
-        {
-          inlineData: {
-            data: imageBuffer.toString("base64"),
-            mimeType: mimeType,
-          },
+    const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+    const response = await model.generateContent([
+      {
+        inlineData: {
+          data: imageBuffer.toString("base64"),
+          mimeType: mimeType,
         },
-        `You are a health data extraction expert. Analyze this health/fitness screenshot and extract numerical health metrics.
+      },
+      `You are a health data extraction expert. Analyze this health/fitness screenshot and extract numerical health metrics.
 
 Look for the following metrics and extract their exact numerical values:
 - Sleep hours (total sleep time)
@@ -49,8 +49,7 @@ Look for the following metrics and extract their exact numerical values:
 ${prompt}
 
 Only include values that are clearly visible and readable in the image. Set to null if not found.`,
-      ],
-    });
+    ]);
 
     const rawJson = response.text;
     console.log(`Raw JSON response: ${rawJson}`);
