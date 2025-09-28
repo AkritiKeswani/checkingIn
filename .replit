@@ -26,6 +26,10 @@ externalPort = 80
 localPort = 46627
 externalPort = 3000
 
+[[ports]]
+localPort = 46679
+externalPort = 3001
+
 [agent]
 expertMode = true
 integrations = ["javascript_gemini:1.0.0"]
