@@ -1,7 +1,7 @@
-import type { NextPage } from "next";
-import Head from "next/head";
+'use client'
+
 import { useState, useCallback } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import Navigation from "@/components/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +17,7 @@ interface HealthMetrics {
   calories?: number;
 }
 
-const UploadPage: NextPage = () => {
+export default function UploadPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<{
     success: boolean;
@@ -120,14 +120,6 @@ const UploadPage: NextPage = () => {
   );
 
   return (
-    <>
-      <Head>
-        <title>Upload Health Screenshot - CheckingIn</title>
-        <meta name="description" content="Upload screenshots to extract health metrics automatically with AI vision" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <Navigation />
       <main className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
@@ -359,8 +351,5 @@ const UploadPage: NextPage = () => {
           </div>
         </div>
       </main>
-    </>
   );
-};
-
-export default UploadPage;
+}

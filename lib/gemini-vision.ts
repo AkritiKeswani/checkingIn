@@ -26,9 +26,9 @@ export async function extractHealthMetrics(imageBuffer: Buffer, mimeType: string
   "calories": number or null
 }`;
 
-    const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-    const response = await model.generateContent([
+    const response = await ai.models.generateContent({
+      model: "gemini-1.5-pro",
+      contents: [
       {
         inlineData: {
           data: imageBuffer.toString("base64"),
@@ -49,7 +49,8 @@ Look for the following metrics and extract their exact numerical values:
 ${prompt}
 
 Only include values that are clearly visible and readable in the image. Set to null if not found.`,
-    ]);
+      ],
+    });
 
     const rawJson = response.text;
     console.log(`Raw JSON response: ${rawJson}`);
