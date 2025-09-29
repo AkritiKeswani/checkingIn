@@ -7,13 +7,14 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model HealthMetric {
   id               String   @id @default(cuid())
-  date             DateTime @unique
+  userId           String
+  date             DateTime
   sleepHours       Float?
   recoveryPercent  Float?
   strain           Float?
@@ -22,11 +23,15 @@ model HealthMetric {
   steps            Int?
   calories         Int?
   createdAt        DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
 }
 
 model MentalHealth {
   id        String   @id @default(cuid())
-  date      DateTime @unique
+  userId    String
+  date      DateTime
   mood      Int      // 1-10 scale
   anxiety   Int      // 1-10 scale
   energy    Int      // 1-10 scale
@@ -36,13 +41,43 @@ model MentalHealth {
   gratitude String?
   triggers  String?
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
 }
 
 model Insight {
   id         String   @id @default(cuid())
+  userId     String
   date       DateTime
   text       String
   type       String   // 'correlation', 'trend', 'recommendation'
   confidence Float    // 0-1 confidence score
   createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// User model for Replit Auth
+model User {
+  id               String          @id
+  email            String?         @unique
+  firstName        String?
+  lastName         String?
+  profileImageUrl  String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  
+  // Relations to wellness data
+  healthMetrics    HealthMetric[]
+  mentalHealth     MentalHealth[]
+  insights         Insight[]
+}
+
+// Session storage for Replit Auth
+model Session {
+  sid    String   @id
+  sess   Json
+  expire DateTime
+
+  @@index([expire])
 }
