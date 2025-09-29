@@ -1,8 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAuthUser } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Check authentication
+    const user = await getAuthUser(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     // Get recent health metrics and mental health data
     const today = new Date();
     const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -10,6 +16,7 @@ export async function GET() {
     // Get latest health metrics
     const recentHealthMetrics = await prisma.healthMetric.findMany({
       where: {
+        userId: user.id,
         date: {
           gte: weekAgo
         }
@@ -23,6 +30,7 @@ export async function GET() {
     // Get recent mental health entries
     const recentMentalHealth = await prisma.mentalHealth.findMany({
       where: {
+        userId: user.id,
         date: {
           gte: weekAgo
         }

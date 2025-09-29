@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { extractHealthMetrics } from '@/lib/gemini-vision';
 import { prisma } from '@/lib/prisma';
+import { getAuthUser } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const user = await getAuthUser(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     // Parse form data
     const formData = await request.formData();
     const file = formData.get('image') as File;
@@ -47,7 +53,12 @@ export async function POST(request: NextRequest) {
     
     // Store in database (upsert for the actual data date)
     const healthMetric = await prisma.healthMetric.upsert({
-      where: { date: dataDate },
+      where: { 
+        userId_date: {
+          userId: user.id,
+          date: dataDate
+        }
+      },
       update: {
         sleepHours: metrics.sleepHours,
         recoveryPercent: metrics.recoveryPercent,
@@ -58,6 +69,7 @@ export async function POST(request: NextRequest) {
         calories: metrics.calories,
       },
       create: {
+        userId: user.id,
         date: dataDate,
         sleepHours: metrics.sleepHours,
         recoveryPercent: metrics.recoveryPercent,

@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAuthUser } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const user = await getAuthUser(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const body = await request.json();
     const { mood, entry, gratitude, goals } = body;
 
     // Create journal entry
     const journalEntry = await prisma.mentalHealth.create({
       data: {
+        userId: user.id,
         date: new Date(),
         mood: mood || 3,
         anxiety: 3, // default neutral values
@@ -31,14 +38,20 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Check authentication
+    const user = await getAuthUser(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     // Get journal entries for the current week
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     
     const entries = await prisma.mentalHealth.findMany({
       where: {
+        userId: user.id,
         date: {
           gte: weekAgo
         }
@@ -57,6 +70,7 @@ export async function GET() {
     
     // Calculate streak (consecutive days with entries)
     const allEntries = await prisma.mentalHealth.findMany({
+      where: { userId: user.id },
       orderBy: { date: 'desc' }
     });
     
