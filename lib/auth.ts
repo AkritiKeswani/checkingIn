@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { prisma } from './prisma';
+import { getReplitUser, getOrCreateUser } from './replitAuth';
 
 export interface AuthUser {
   id: string;
@@ -11,32 +11,16 @@ export interface AuthUser {
 
 export async function getAuthUser(request: NextRequest): Promise<AuthUser | null> {
   try {
-    // For demo purposes, check if there's a 'demo-auth' cookie to simulate being logged in
-    const demoAuthCookie = request.cookies.get('demo-auth');
+    // Try to get Replit Auth user
+    const replitUser = await getReplitUser(request);
     
-    if (!demoAuthCookie) {
-      // No authentication - return null so user sees sign-in button
+    if (!replitUser) {
+      // No authenticated user found
       return null;
     }
 
-    // Simulate authenticated user for demo
-    const mockUserId = "user_demo";
-    
-    // Check if user exists, create if not  
-    let user = await prisma.user.findUnique({
-      where: { id: mockUserId }
-    });
-    
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          id: mockUserId,
-          email: "demo@gmail.com", 
-          firstName: "Demo",
-          lastName: "User"
-        }
-      });
-    }
+    // Get or create user in our database
+    const user = await getOrCreateUser(replitUser);
     
     return {
       id: user.id,
