@@ -26,17 +26,20 @@ export default function Navigation() {
       </div>
       <div className="flex items-center space-x-8">
         <Link href="/" className="text-gray-600 hover:text-black">
-          Features
+          Dashboard
         </Link>
-        <Link href="/" className="text-gray-600 hover:text-black">
-          How it Works
+        <Link href="/upload" className="text-gray-600 hover:text-black">
+          Upload Health Data
         </Link>
-        <Link href="/" className="text-gray-600 hover:text-black">
-          Sign In
+        <Link href="/journal" className="text-gray-600 hover:text-black">
+          Journal
         </Link>
-        <Link href="/upload" className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800">
-          Get Started
-        </Link>
+        <div className="flex items-center space-x-3">
+          <span className="text-gray-600">Hi, Demo User!</span>
+          <span className="text-gray-600 hover:text-black cursor-pointer">
+            Sign Out
+          </span>
+        </div>
       </div>
     </nav>
   )
