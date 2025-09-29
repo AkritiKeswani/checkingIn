@@ -11,11 +11,18 @@ export interface AuthUser {
 
 export async function getAuthUser(request: NextRequest): Promise<AuthUser | null> {
   try {
-    // In development, we'll create a mock user for now
-    // This will be replaced with actual Replit Auth when fully implemented
-    const mockUserId = "user_1";
+    // For demo purposes, check if there's a 'demo-auth' cookie to simulate being logged in
+    const demoAuthCookie = request.cookies.get('demo-auth');
     
-    // Check if user exists, create if not
+    if (!demoAuthCookie) {
+      // No authentication - return null so user sees sign-in button
+      return null;
+    }
+
+    // Simulate authenticated user for demo
+    const mockUserId = "user_demo";
+    
+    // Check if user exists, create if not  
     let user = await prisma.user.findUnique({
       where: { id: mockUserId }
     });
@@ -24,7 +31,7 @@ export async function getAuthUser(request: NextRequest): Promise<AuthUser | null
       user = await prisma.user.create({
         data: {
           id: mockUserId,
-          email: "demo@example.com",
+          email: "demo@gmail.com", 
           firstName: "Demo",
           lastName: "User"
         }
@@ -44,12 +51,11 @@ export async function getAuthUser(request: NextRequest): Promise<AuthUser | null
   }
 }
 
-export function requireAuth() {
-  return async function(request: NextRequest) {
-    const user = await getAuthUser(request);
-    if (!user) {
-      throw new Error('Unauthorized');
-    }
-    return user;
-  };
+// Middleware function to require authentication
+export async function requireAuth(request: NextRequest): Promise<AuthUser> {
+  const user = await getAuthUser(request);
+  if (!user) {
+    throw new Error('Unauthorized - Please sign in with Google');
+  }
+  return user;
 }

@@ -15,27 +15,34 @@ export function useAuth() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // For now, we'll simulate having a logged-in user
-    // In full Replit Auth, this would fetch from /api/auth/user
-    const mockUser: User = {
-      id: "user_1",
-      email: "demo@example.com",
-      firstName: "Demo",
-      lastName: "User"
-    };
-    
-    setUser(mockUser);
-    setIsLoading(false);
+    // Check if user is authenticated by calling our auth endpoint
+    checkAuthStatus();
   }, []);
 
+  const checkAuthStatus = async () => {
+    try {
+      const response = await fetch('/api/auth/user');
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const login = () => {
-    // In full Replit Auth, this would redirect to /api/login
+    // Redirect to Replit Auth login (Google-only when configured)
     window.location.href = '/api/login';
   };
 
   const logout = () => {
-    // In full Replit Auth, this would redirect to /api/logout
-    setUser(null);
+    // Redirect to Replit Auth logout
     window.location.href = '/api/logout';
   };
 
@@ -44,6 +51,7 @@ export function useAuth() {
     isLoading,
     isAuthenticated: !!user,
     login,
-    logout
+    logout,
+    checkAuthStatus
   };
 }
