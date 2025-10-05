@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
+import { useReplitAuth } from '@/components/ReplitAuthProvider'
 
 function HeartLogo() {
   return (
@@ -21,7 +21,7 @@ function HeartLogo() {
 }
 
 export default function Navigation() {
-  const { user, isAuthenticated, isLoading, login, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, login, logout } = useReplitAuth();
 
   if (isLoading) {
     return (

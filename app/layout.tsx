@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Navigation from '@/components/navigation'
+import { ReplitAuthProvider } from '@/components/ReplitAuthProvider'
 
 export const metadata: Metadata = {
   title: 'CheckingIn - AI Wellness Coach',
@@ -15,8 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <Navigation />
-        {children}
+        <ReplitAuthProvider>
+          <Navigation />
+          {children}
+        </ReplitAuthProvider>
       </body>
     </html>
   )
